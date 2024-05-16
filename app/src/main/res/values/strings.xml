@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BookMiniProject</string>
+    <string name="book_main">The Book DB</string>
+    <string name="book_detail">Book Details</string>
+    <string name="book_author">Book Author</string>
+    <string name="book_edition">Book Edition</string>
+    <string name="back_button">Back</string>
+</resources>
