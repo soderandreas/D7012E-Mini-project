@@ -1,7 +1,9 @@
 package com.example.bookminiproject.database
 
+import android.util.Log
 import com.example.bookminiproject.model.Author
 import com.example.bookminiproject.model.AuthorWorksQueryResponse
+import com.example.bookminiproject.model.SearchWorksQueryResponse
 import com.example.bookminiproject.model.TrendingWorksQueryResponse
 import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.network.BookDBApiService
@@ -19,6 +21,7 @@ class NetworkBooksRepository(private val apiService: BookDBApiService) : BooksRe
 interface WorksRepository {
     suspend fun getTrendingWorks(): TrendingWorksQueryResponse
     suspend fun getAuthorWorks(id: String): AuthorWorksQueryResponse
+    suspend fun getWorksQuery(query: String): SearchWorksQueryResponse
     suspend fun getWork(id: String): Work
     suspend fun getAuthorName(id: String): String
     suspend fun getAuthor(id: String): Author
@@ -31,6 +34,10 @@ class NetworkWorksRepository(private val apiService: BookDBApiService) : WorksRe
 
     override suspend fun getAuthorWorks(id: String): AuthorWorksQueryResponse {
         return apiService.getAuthorWorks(id)
+    }
+
+    override suspend fun getWorksQuery(query: String): SearchWorksQueryResponse {
+        return apiService.getWorksQuery(query)
     }
 
     override suspend fun getWork(id: String): Work {

@@ -33,13 +33,15 @@ import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.ui.screens.BookAuthorScreen
 import com.example.bookminiproject.ui.screens.BookDetailScreen
 import com.example.bookminiproject.ui.screens.BookListScreen
+import com.example.bookminiproject.ui.screens.BookSearchScreen
 import com.example.bookminiproject.viewmodel.BooksDBViewModel
 
 enum class BookDBScreen(@StringRes val title: Int) {
     List(title = R.string.book_main),
     Detail(title = R.string.book_detail),
     Author(title = R.string.book_author),
-    Edition(title = R.string.book_edition)
+    Edition(title = R.string.book_edition),
+    Search(title = R.string.book_search)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +75,7 @@ fun BookDBAppBar(
 
 @Composable
 fun BookDBApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -94,7 +96,7 @@ fun BookDBApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = BookDBScreen.List.name,
+            startDestination = BookDBScreen.Search.name,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -134,7 +136,14 @@ fun BookDBApp(
                         .fillMaxWidth()
                         .padding(16.dp)
                 )
-                //Text("get here?")
+            }
+            composable(route = BookDBScreen.Search.name) {
+                BookSearchScreen(
+                    booksDBViewModel,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
             }
         }
     }

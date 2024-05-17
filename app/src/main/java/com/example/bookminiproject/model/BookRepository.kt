@@ -25,3 +25,13 @@ data class AuthorWorksQueryResponse(
     @SerialName(value = "entries")
     var entries: List<Work>,
 )
+
+@Serializable
+data class SearchWorksQueryResponse(
+    @SerialName(value = "numFound")
+    var numFound: Int = 0,
+    @SerialName(value = "start")
+    var start: Int = 0,
+    @SerialName(value = "docs")
+    var docs: List<Works>? = null
+)

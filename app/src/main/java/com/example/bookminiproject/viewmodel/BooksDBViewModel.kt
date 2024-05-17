@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,8 @@ import com.example.bookminiproject.model.AuthorKey
 import com.example.bookminiproject.model.Description
 import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.model.Works
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -44,6 +47,13 @@ sealed interface SelectedAuthorUiState {
     object Loading : SelectedAuthorUiState
 }
 
+sealed interface SearchResultUiState {
+    data class Success(val works: List<Works>): SearchResultUiState
+    object Error : SearchResultUiState
+    object Loading : SearchResultUiState
+    object Nothing : SearchResultUiState
+}
+
 class BooksDBViewModel(
     private val worksRepository: WorksRepository,
 ) : ViewModel() {
@@ -56,9 +66,16 @@ class BooksDBViewModel(
     var selectedAuthorUiState: SelectedAuthorUiState by mutableStateOf(SelectedAuthorUiState.Loading)
         private set
 
+    var searchResultUiState: SearchResultUiState by mutableStateOf(SearchResultUiState.Nothing)
+        private set
+
+    var searchQuery by mutableStateOf("")
+        private set
+
     init {
         getTrendingWorks()
     }
+
 
     fun getTrendingWorks() {
         viewModelScope.launch {
@@ -69,6 +86,25 @@ class BooksDBViewModel(
                 WorkListUiState.Error
             } catch (e: HttpException) {
                 WorkListUiState.Error
+            }
+        }
+    }
+
+    fun getWorksQuery() {
+        viewModelScope.launch {
+            searchResultUiState = SearchResultUiState.Loading
+            searchResultUiState = try {
+                val result = worksRepository.getWorksQuery(searchQuery).docs
+                if (result != null) {
+                    Log.d("Books result", result.toString())
+                    SearchResultUiState.Success(result)
+                } else {
+                    SearchResultUiState.Error
+                }
+            } catch (e: IOException) {
+                SearchResultUiState.Error
+            } catch (e: HttpException) {
+                SearchResultUiState.Error
             }
         }
     }
@@ -107,6 +143,10 @@ class BooksDBViewModel(
                 SelectedAuthorUiState.Error
             }
         }
+    }
+
+    fun onSearchQueryChange(newQuery: String) {
+        searchQuery = newQuery
     }
 
     companion object {

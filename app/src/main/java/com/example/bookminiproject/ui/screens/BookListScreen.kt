@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,9 +42,10 @@ fun BookListScreen(
     onBookListItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
-        when(val workListUiState = booksDBViewModel.workListUiState) {
-            is WorkListUiState.Success -> {
+    when(val workListUiState = booksDBViewModel.workListUiState) {
+        is WorkListUiState.Success -> {
+            Text(text = "Trending Works:")
+            LazyRow(modifier = modifier) {
                 items(workListUiState.works) { work ->
                     BookListItemCard(
                         work = work,
@@ -53,24 +55,20 @@ fun BookListScreen(
                     )
                 }
             }
-            is WorkListUiState.Loading -> {
-                item {
-                    Text(
-                        text = "Loading...",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
-            is WorkListUiState.Error -> {
-                item {
-                    Text(
-                        text = "Error: Something went wrong!",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
+        }
+        is WorkListUiState.Loading -> {
+            Text(
+                text = "Loading...",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+        is WorkListUiState.Error -> {
+            Text(
+                text = "Error: Something went wrong!",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
 }
@@ -83,12 +81,12 @@ fun BookListItemCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.width(300.dp),
         onClick = {
             onBookListItemClicked(work.key)
         }
     ) {
-        Row {
+        Row  {
             Box {
                 Log.d("IMAGE URL", Constants.COVER_IMAGE_BASE_URL + work.coverImage + Constants.COVER_SIZE_M)
                 AsyncImage(
@@ -104,7 +102,9 @@ fun BookListItemCard(
             Column {
                 Text(
                     text = work.title,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
@@ -115,6 +115,8 @@ fun BookListItemCard(
                 if (work.authorName.isNotEmpty()){
                     Text(
                         text = "by ${work.authorName[0]}",
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
