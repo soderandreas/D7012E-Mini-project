@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bookminiproject.BookDBApplication
+import com.example.bookminiproject.database.LocalWorksRepository
 import com.example.bookminiproject.database.WorksRepository
 import com.example.bookminiproject.model.Author
 import com.example.bookminiproject.model.AuthorKey
@@ -56,6 +57,7 @@ sealed interface SearchResultUiState {
 
 class BooksDBViewModel(
     private val worksRepository: WorksRepository,
+    private val localWorksRepository: LocalWorksRepository
 ) : ViewModel() {
     var workListUiState: WorkListUiState by mutableStateOf(WorkListUiState.Loading)
         private set
@@ -81,7 +83,11 @@ class BooksDBViewModel(
         viewModelScope.launch {
             workListUiState = WorkListUiState.Loading
             workListUiState = try {
-                WorkListUiState.Success(worksRepository.getTrendingWorks().works)
+                val works = worksRepository.getTrendingWorks().works
+                works.forEach { work ->
+                    localWorksRepository.insertWorks(work)
+                }
+                WorkListUiState.Success(works)
             } catch (e: IOException) {
                 WorkListUiState.Error
             } catch (e: HttpException) {
@@ -147,6 +153,9 @@ class BooksDBViewModel(
 
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery
+        if (newQuery == "") {
+            searchResultUiState = SearchResultUiState.Nothing
+        }
     }
 
     companion object {
@@ -155,8 +164,10 @@ class BooksDBViewModel(
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as BookDBApplication)
                 val booksRepository = application.container.booksRepository
                 val worksRepository = application.container.worksRepository
+                val localWorksRepository = application.container.localWorksRepository
                 BooksDBViewModel(
                     worksRepository = worksRepository,
+                    localWorksRepository = localWorksRepository
                 )
             }
         }

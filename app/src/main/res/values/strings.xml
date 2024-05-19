@@ -6,4 +6,6 @@
     <string name="book_edition">Book Edition</string>
     <string name="back_button">Back</string>
     <string name="book_search">Book Search</string>
+    <string name="bottom_home">Bottom Home</string>
+    <string name="bottom_search">Bottom Search</string>
 </resources>

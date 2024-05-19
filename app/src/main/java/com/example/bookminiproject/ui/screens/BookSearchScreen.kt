@@ -2,6 +2,7 @@ package com.example.bookminiproject.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,12 +28,13 @@ import com.example.bookminiproject.viewmodel.WorkListUiState
 @Composable
 fun BookSearchScreen(
     booksDBViewModel: BooksDBViewModel,
+    onBookListItemClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var status: SearchResultUiState = SearchResultUiState.Nothing
+    // var status: SearchResultUiState = SearchResultUiState.Nothing
     var works: List<Works> = listOf()
 
-    status = booksDBViewModel.searchResultUiState
+    val status = booksDBViewModel.searchResultUiState
 
     when(status) {
         is SearchResultUiState.Success -> {
@@ -45,7 +47,9 @@ fun BookSearchScreen(
         searchQuery = booksDBViewModel.searchQuery,
         onSearchQueryChange = { booksDBViewModel.onSearchQueryChange(it) },
         onSearchWork = { booksDBViewModel.getWorksQuery() },
+        onBookListItemClicked,
         works = works,
+        status = status,
         modifier = modifier
     )
 }
@@ -56,7 +60,9 @@ fun SearchScreen(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onSearchWork: () -> Unit,
+    onBookListItemClicked: (String) -> Unit,
     works: List<Works>,
+    status: SearchResultUiState,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -92,15 +98,35 @@ fun SearchScreen(
         active = true,
         onActiveChange = {}
     ) {
-        LazyColumn (modifier) {
-            items(works) { work ->
-                BookListItemCard(
-                    work = work,
-                    { },
-                    modifier = Modifier
-                        .padding(8.dp)
+        when (status) {
+            is SearchResultUiState.Success -> {
+                LazyColumn (modifier) {
+                    items(works) { work ->
+                        BookListItemCard(
+                            work = work,
+                            onBookListItemClicked,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+            is SearchResultUiState.Loading -> {
+                Text(
+                    text = "Loading...",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
+            is SearchResultUiState.Error -> {
+                Text(
+                    text = "Error: Something went wrong!",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            is SearchResultUiState.Nothing -> {}
         }
     }
 }

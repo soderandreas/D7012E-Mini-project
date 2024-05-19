@@ -1,5 +1,7 @@
 package com.example.bookminiproject.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -90,6 +92,27 @@ data class Works(
 
     @SerialName(value = "author_name")
     var authorName: List<String> = listOf(""),
+
+    @SerialName(value = "first_publish_year")
+    var firstPublishYear: Int? = null,
+)
+
+// Local version of works
+@Serializable
+@Entity(tableName = "works")
+data class WorksLocal(
+    @PrimaryKey
+    @SerialName(value = "key")
+    var key: String = "",
+
+    @SerialName(value = "title")
+    var title: String = "",
+
+    @SerialName(value = "cover_i")
+    var coverImage: Int? = null,
+
+    @SerialName(value = "author_name")
+    var authorName: String = "",
 
     @SerialName(value = "first_publish_year")
     var firstPublishYear: Int? = null,

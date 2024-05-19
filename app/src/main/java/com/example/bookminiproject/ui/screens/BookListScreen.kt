@@ -44,7 +44,7 @@ fun BookListScreen(
 ) {
     when(val workListUiState = booksDBViewModel.workListUiState) {
         is WorkListUiState.Success -> {
-            Text(text = "Trending Works:")
+            Text(text = "Trending Works (this week):")
             LazyRow(modifier = modifier) {
                 items(workListUiState.works) { work ->
                     BookListItemCard(
@@ -52,6 +52,7 @@ fun BookListScreen(
                         onBookListItemClicked,
                         modifier = Modifier
                             .padding(8.dp)
+                            .width(300.dp)
                     )
                 }
             }
@@ -81,7 +82,7 @@ fun BookListItemCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.width(300.dp),
+        modifier = modifier,
         onClick = {
             onBookListItemClicked(work.key)
         }
@@ -93,9 +94,10 @@ fun BookListItemCard(
                     model = Constants.COVER_IMAGE_BASE_URL + work.coverImage + Constants.COVER_SIZE_M,
                     placeholder = painterResource(R.drawable.no_image_placeholder),
                     contentDescription = work.title,
-                    modifier = modifier
+                    modifier = Modifier
                         .width(90.dp)
-                        .height(136.dp),
+                        .height(136.dp)
+                        .padding(8.dp),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -115,7 +117,7 @@ fun BookListItemCard(
                 if (work.authorName.isNotEmpty()){
                     Text(
                         text = "by ${work.authorName[0]}",
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

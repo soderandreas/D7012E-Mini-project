@@ -6,6 +6,8 @@ import com.example.bookminiproject.model.AuthorWorksQueryResponse
 import com.example.bookminiproject.model.SearchWorksQueryResponse
 import com.example.bookminiproject.model.TrendingWorksQueryResponse
 import com.example.bookminiproject.model.Work
+import com.example.bookminiproject.model.Works
+import com.example.bookminiproject.model.WorksLocal
 import com.example.bookminiproject.network.BookDBApiService
 
 interface BooksRepository {
@@ -50,5 +52,35 @@ class NetworkWorksRepository(private val apiService: BookDBApiService) : WorksRe
 
     override suspend fun getAuthor(id: String): Author {
         return apiService.getAuthorInformation(id)
+    }
+}
+
+interface DBWorksRepository {
+    suspend fun getWorks(): List<WorksLocal>
+
+    suspend fun insertWorks(works: Works)
+
+    suspend fun deleteAllWorks()
+}
+
+class LocalWorksRepository(private val bookDao: BookDao) : DBWorksRepository {
+    override suspend fun getWorks(): List<WorksLocal> {
+        return bookDao.getAllWorks()
+    }
+
+    override suspend fun insertWorks(works: Works) {
+        bookDao.insertNewWork(
+            WorksLocal(
+                key = works.key,
+                title = works.title,
+                coverImage = works.coverImage,
+                authorName = works.authorName[0],
+                firstPublishYear = works.firstPublishYear
+            )
+        )
+    }
+
+    override suspend fun deleteAllWorks() {
+        bookDao.deleteAllWorks()
     }
 }
