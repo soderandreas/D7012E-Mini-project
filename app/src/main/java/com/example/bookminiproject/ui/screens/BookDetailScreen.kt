@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -90,6 +91,20 @@ fun BookDetailScreen(
                         Modifier
                             .padding(horizontal = 2.dp)
                     )
+                }
+                Row {
+                    Text(
+                        text = "Favorite",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                    Switch(checked = selectedWorkUiState.favorite, onCheckedChange = {
+                        if (it)
+                            booksDBViewModel.saveWork(selectedWorkUiState.work, selectedWorkUiState.author)
+                        else
+                            booksDBViewModel.deleteWork(selectedWorkUiState.work, selectedWorkUiState.author)
+                    })
                 }
             }
         }

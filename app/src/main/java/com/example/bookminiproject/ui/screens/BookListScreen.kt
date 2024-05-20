@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -44,16 +46,23 @@ fun BookListScreen(
 ) {
     when(val workListUiState = booksDBViewModel.workListUiState) {
         is WorkListUiState.Success -> {
-            Text(text = "Trending Works (this week):")
-            LazyRow(modifier = modifier) {
-                items(workListUiState.works) { work ->
-                    BookListItemCard(
-                        work = work,
-                        onBookListItemClicked,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .width(300.dp)
-                    )
+            Column (modifier = Modifier.verticalScroll(
+                rememberScrollState()
+            )) {
+                workListUiState.works.forEach {
+                    Text(text = it.second)
+                    LazyRow(modifier = modifier) {
+                        items(it.first) { work ->
+                            BookListItemCard(
+                                work = work,
+                                onBookListItemClicked,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .width(300.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
                 }
             }
         }

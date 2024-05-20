@@ -6,8 +6,8 @@ import com.example.bookminiproject.model.AuthorWorksQueryResponse
 import com.example.bookminiproject.model.SearchWorksQueryResponse
 import com.example.bookminiproject.model.TrendingWorksQueryResponse
 import com.example.bookminiproject.model.Work
+import com.example.bookminiproject.model.WorkLocal
 import com.example.bookminiproject.model.Works
-import com.example.bookminiproject.model.WorksLocal
 import com.example.bookminiproject.network.BookDBApiService
 
 interface BooksRepository {
@@ -21,7 +21,7 @@ class NetworkBooksRepository(private val apiService: BookDBApiService) : BooksRe
 }
 
 interface WorksRepository {
-    suspend fun getTrendingWorks(): TrendingWorksQueryResponse
+    suspend fun getTrendingWorks(time: String = "weekly"): TrendingWorksQueryResponse
     suspend fun getAuthorWorks(id: String): AuthorWorksQueryResponse
     suspend fun getWorksQuery(query: String): SearchWorksQueryResponse
     suspend fun getWork(id: String): Work
@@ -30,8 +30,8 @@ interface WorksRepository {
 }
 
 class NetworkWorksRepository(private val apiService: BookDBApiService) : WorksRepository {
-    override suspend fun getTrendingWorks(): TrendingWorksQueryResponse {
-        return apiService.getTrendingWorks()
+    override suspend fun getTrendingWorks(time: String): TrendingWorksQueryResponse {
+        return apiService.getTrendingWorks(time)
     }
 
     override suspend fun getAuthorWorks(id: String): AuthorWorksQueryResponse {
@@ -56,28 +56,40 @@ class NetworkWorksRepository(private val apiService: BookDBApiService) : WorksRe
 }
 
 interface DBWorksRepository {
-    suspend fun getWorks(): List<WorksLocal>
+    suspend fun getWorks(): List<WorkLocal>
 
-    suspend fun insertWorks(works: Works)
+    suspend fun getWork(key: String): WorkLocal
+
+    suspend fun insertWork(work: Work, authorName: String)
+
+    suspend fun deleteWork(work: Work)
 
     suspend fun deleteAllWorks()
 }
 
-class LocalWorksRepository(private val bookDao: BookDao) : DBWorksRepository {
-    override suspend fun getWorks(): List<WorksLocal> {
+class LocalWorkRepository(private val bookDao: BookDao) : DBWorksRepository {
+    override suspend fun getWorks(): List<WorkLocal> {
         return bookDao.getAllWorks()
     }
 
-    override suspend fun insertWorks(works: Works) {
+    override suspend fun getWork(key: String): WorkLocal {
+        return bookDao.getWork(key)
+    }
+
+    override suspend fun insertWork(work: Work, authorName: String) {
         bookDao.insertNewWork(
-            WorksLocal(
-                key = works.key,
-                title = works.title,
-                coverImage = works.coverImage,
-                authorName = works.authorName[0],
-                firstPublishYear = works.firstPublishYear
+            WorkLocal(
+                key = work.key,
+                title = work.title,
+                coverImage = work.covers?.get(0),
+                authorName = authorName,
+                firstPublishDate = work.firstPublishDate
             )
         )
+    }
+
+    override suspend fun deleteWork(work: Work) {
+        bookDao.deleteWork(work.key)
     }
 
     override suspend fun deleteAllWorks() {

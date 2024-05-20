@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +21,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
@@ -83,6 +86,7 @@ fun BookDBAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
+    booksDBViewModel: BooksDBViewModel
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -91,6 +95,43 @@ fun BookDBAppBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
+        actions = {
+            IconButton(onClick = {
+                // Set the menu expanded state to the opposite of the current state
+                menuExpanded = !menuExpanded
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "Open Menu to select different movie lists"
+                )
+            }
+            DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                DropdownMenuItem(
+                    onClick = {
+                        // Set the selected movie list to popular
+                        booksDBViewModel.getTrendingWorks()
+                        // Set the menu expanded state to false
+                        menuExpanded = false
+
+                    },
+                    text = {
+                        Text("Popular Books")
+                    }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        // Set the selected movie list to popular
+                        booksDBViewModel.getSavedWorks()
+                        // Set the menu expanded state to false
+                        menuExpanded = false
+
+                    },
+                    text = {
+                        Text("Saved Books")
+                    }
+                )
+            }
+        },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
@@ -151,7 +192,8 @@ fun BookDBApp(
                 currentScreen = currentScreen,
                 canNavigateBack =
                     navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
+                booksDBViewModel = booksDBViewModel
             )
         },
         bottomBar = {
@@ -183,7 +225,7 @@ fun BookDBApp(
                         navController.navigate(BookDBScreen.Detail.name)
                     },
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(16.dp)
                 )
             }

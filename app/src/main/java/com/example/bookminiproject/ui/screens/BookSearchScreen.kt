@@ -23,7 +23,6 @@ import com.example.bookminiproject.model.Book
 import com.example.bookminiproject.model.Works
 import com.example.bookminiproject.viewmodel.BooksDBViewModel
 import com.example.bookminiproject.viewmodel.SearchResultUiState
-import com.example.bookminiproject.viewmodel.WorkListUiState
 
 @Composable
 fun BookSearchScreen(

@@ -12,7 +12,7 @@ import retrofit2.Retrofit
 interface AppContainer {
     val booksRepository: NetworkBooksRepository
     val worksRepository: NetworkWorksRepository
-    val localWorksRepository: LocalWorksRepository
+    val localWorkRepository: LocalWorkRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -51,7 +51,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         NetworkWorksRepository(retrofitService)
     }
 
-    override val localWorksRepository: LocalWorksRepository by lazy {
-        LocalWorksRepository(BookDatabase.getDatabase(context).bookDao())
+    override val localWorkRepository: LocalWorkRepository by lazy {
+        LocalWorkRepository(BookDatabase.getDatabase(context).bookDao())
     }
 }

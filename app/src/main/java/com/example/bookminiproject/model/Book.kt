@@ -99,8 +99,8 @@ data class Works(
 
 // Local version of works
 @Serializable
-@Entity(tableName = "works")
-data class WorksLocal(
+@Entity(tableName = "work")
+data class WorkLocal(
     @PrimaryKey
     @SerialName(value = "key")
     var key: String = "",
@@ -114,8 +114,8 @@ data class WorksLocal(
     @SerialName(value = "author_name")
     var authorName: String = "",
 
-    @SerialName(value = "first_publish_year")
-    var firstPublishYear: Int? = null,
+    @SerialName(value = "first_publish_date")
+    var firstPublishDate: String? = "",
 )
 
 @Serializable

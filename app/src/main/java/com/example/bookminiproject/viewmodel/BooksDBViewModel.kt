@@ -11,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bookminiproject.BookDBApplication
-import com.example.bookminiproject.database.LocalWorksRepository
+import com.example.bookminiproject.database.LocalWorkRepository
 import com.example.bookminiproject.database.WorksRepository
 import com.example.bookminiproject.model.Author
 import com.example.bookminiproject.model.AuthorKey
@@ -25,7 +25,7 @@ import retrofit2.HttpException
 import java.io.IOException
 
 sealed interface WorkListUiState {
-    data class Success(val works: List<Works>) : WorkListUiState
+    data class Success(val works: List<Pair<List<Works>, String>>) : WorkListUiState
     object Error : WorkListUiState
     object Loading : WorkListUiState
 }
@@ -33,7 +33,8 @@ sealed interface WorkListUiState {
 sealed interface SelectedWorkUiState {
     data class Success(
         val work: Work,
-        val author: String
+        val author: String,
+        val favorite: Boolean,
     ) : SelectedWorkUiState
     object Error : SelectedWorkUiState
     object Loading : SelectedWorkUiState
@@ -57,7 +58,7 @@ sealed interface SearchResultUiState {
 
 class BooksDBViewModel(
     private val worksRepository: WorksRepository,
-    private val localWorksRepository: LocalWorksRepository
+    private val localWorkRepository: LocalWorkRepository
 ) : ViewModel() {
     var workListUiState: WorkListUiState by mutableStateOf(WorkListUiState.Loading)
         private set
@@ -83,11 +84,23 @@ class BooksDBViewModel(
         viewModelScope.launch {
             workListUiState = WorkListUiState.Loading
             workListUiState = try {
-                val works = worksRepository.getTrendingWorks().works
-                works.forEach { work ->
+                val worksWeek = worksRepository.getTrendingWorks().works
+                /*worksWeek.forEach { work ->
                     localWorksRepository.insertWorks(work)
-                }
-                WorkListUiState.Success(works)
+                }*/
+                val worksDay = worksRepository.getTrendingWorks("daily").works
+                /*worksDay.forEach { work ->
+                    localWorksRepository.insertWorks(work)
+                }*/
+                val worksNow = worksRepository.getTrendingWorks("now").works
+                /*worksNow.forEach { work ->
+                    localWorksRepository.insertWorks(work)
+                }*/
+                WorkListUiState.Success(listOf(
+                    Pair(worksWeek, "Trending Work (this week):"),
+                    Pair(worksDay, "Trending Work (today):"),
+                    Pair(worksNow, "Trending Right Now:")
+                ))
             } catch (e: IOException) {
                 WorkListUiState.Error
             } catch (e: HttpException) {
@@ -127,7 +140,11 @@ class BooksDBViewModel(
                     null -> "Description of $name is not available."
                 }
                 Log.d("Description", "description of requested work: $descriptionValue")
-                SelectedWorkUiState.Success(work, name)
+                SelectedWorkUiState.Success(
+                    work,
+                    name,
+                    localWorkRepository.getWork(work.key) != null
+                )
             } catch (e: IOException) {
                 SelectedWorkUiState.Error
             } catch (e: HttpException) {
@@ -158,16 +175,68 @@ class BooksDBViewModel(
         }
     }
 
+    fun saveWork(work: Work, authorName: String) {
+        viewModelScope.launch {
+            localWorkRepository.insertWork(work, authorName)
+            selectedWorkUiState = try {
+                SelectedWorkUiState.Success(work, authorName, favorite = true)
+            } catch (e: IOException) {
+                SelectedWorkUiState.Error
+            } catch (e: HttpException) {
+                SelectedWorkUiState.Error
+            }
+        }
+    }
+
+    fun getSavedWorks() {
+        viewModelScope.launch {
+            workListUiState = WorkListUiState.Loading
+            workListUiState = try {
+                val localWorks = localWorkRepository.getWorks()
+                val works = ArrayList<Works>()
+                localWorks.forEach {
+                    works.add(
+                        Works(
+                            key = it.key,
+                            title = it.title,
+                            coverImage = it.coverImage,
+                            authorName = listOf(it.authorName),
+                            firstPublishYear = null
+                        )
+                    )
+                }
+                WorkListUiState.Success(listOf(Pair(works, "Saved Works")))
+            } catch (e: IOException) {
+                WorkListUiState.Error
+            } catch (e: HttpException) {
+                WorkListUiState.Error
+            }
+        }
+    }
+
+    fun deleteWork(work: Work, authorName: String) {
+        viewModelScope.launch {
+            localWorkRepository.deleteWork(work)
+            selectedWorkUiState = try {
+                SelectedWorkUiState.Success(work, authorName, favorite = false)
+            } catch (e: IOException) {
+                SelectedWorkUiState.Error
+            } catch (e: HttpException) {
+                SelectedWorkUiState.Error
+            }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as BookDBApplication)
                 val booksRepository = application.container.booksRepository
                 val worksRepository = application.container.worksRepository
-                val localWorksRepository = application.container.localWorksRepository
+                val localWorkRepository = application.container.localWorkRepository
                 BooksDBViewModel(
                     worksRepository = worksRepository,
-                    localWorksRepository = localWorksRepository
+                    localWorkRepository = localWorkRepository
                 )
             }
         }

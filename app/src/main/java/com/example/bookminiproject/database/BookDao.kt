@@ -4,16 +4,22 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.bookminiproject.model.WorksLocal
+import com.example.bookminiproject.model.WorkLocal
 
 @Dao
 abstract class BookDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insertNewWork(work: WorksLocal)
+    abstract suspend fun insertNewWork(work: WorkLocal)
 
-    @Query("SELECT * FROM works")
-    abstract suspend fun getAllWorks(): List<WorksLocal>
+    @Query("SELECT * FROM work")
+    abstract suspend fun getAllWorks(): List<WorkLocal>
 
-    @Query("DELETE FROM works")
+    @Query("SELECT * FROM work WHERE `key` = :key")
+    abstract suspend fun getWork(key: String): WorkLocal
+
+    @Query("DELETE FROM work WHERE `key` = :key")
+    abstract suspend fun deleteWork(key: String)
+
+    @Query("DELETE FROM work")
     abstract suspend fun deleteAllWorks()
 }
