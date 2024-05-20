@@ -149,7 +149,6 @@ fun BookDBAppBottomNavigation(
     NavigationBar {
         BottomNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
             NavigationBarItem(
-                //selected = index == navigationSelectedItem,
                 selected = true,
                 label = {
                     Text(navigationItem.label)

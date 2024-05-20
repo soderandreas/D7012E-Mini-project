@@ -1,6 +1,5 @@
 package com.example.bookminiproject.database
 
-import android.util.Log
 import com.example.bookminiproject.model.Author
 import com.example.bookminiproject.model.AuthorWorksQueryResponse
 import com.example.bookminiproject.model.SearchWorksQueryResponse
@@ -8,7 +7,6 @@ import com.example.bookminiproject.model.SubjectWorksQueryResponse
 import com.example.bookminiproject.model.TrendingWorksQueryResponse
 import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.model.WorkLocal
-import com.example.bookminiproject.model.Works
 import com.example.bookminiproject.network.BookDBApiService
 
 interface BooksRepository {

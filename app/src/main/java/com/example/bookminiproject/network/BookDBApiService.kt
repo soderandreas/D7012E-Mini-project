@@ -9,7 +9,6 @@ import com.example.bookminiproject.model.Work
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import javax.security.auth.Subject
 
 interface BookDBApiService {
     @GET("search.json")
