@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,12 +13,10 @@ import com.example.bookminiproject.BookDBApplication
 import com.example.bookminiproject.database.LocalWorkRepository
 import com.example.bookminiproject.database.WorksRepository
 import com.example.bookminiproject.model.Author
-import com.example.bookminiproject.model.AuthorKey
 import com.example.bookminiproject.model.Description
+import com.example.bookminiproject.model.SubjectWorks
 import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.model.Works
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -56,6 +53,12 @@ sealed interface SearchResultUiState {
     object Nothing : SearchResultUiState
 }
 
+sealed interface SelectedSubjectUiState {
+    data class Success(val works: List<SubjectWorks>, val subject: String): SelectedSubjectUiState
+    object Error : SelectedSubjectUiState
+    object Loading : SelectedSubjectUiState
+}
+
 class BooksDBViewModel(
     private val worksRepository: WorksRepository,
     private val localWorkRepository: LocalWorkRepository
@@ -72,6 +75,9 @@ class BooksDBViewModel(
     var searchResultUiState: SearchResultUiState by mutableStateOf(SearchResultUiState.Nothing)
         private set
 
+    var selectedSubjectUiState: SelectedSubjectUiState by mutableStateOf(SelectedSubjectUiState.Loading)
+        private set
+
     var searchQuery by mutableStateOf("")
         private set
 
@@ -79,23 +85,31 @@ class BooksDBViewModel(
         getTrendingWorks()
     }
 
+    fun setSelectedSubject(subject: String) {
+        viewModelScope.launch {
+            selectedSubjectUiState = SelectedSubjectUiState.Loading
+            selectedSubjectUiState = try {
+                val works = worksRepository.getSubjectWorks(subject).works
+                if (works != null) {
+                    SelectedSubjectUiState.Success(works, subject)
+                } else {
+                    SelectedSubjectUiState.Success(listOf(), subject)
+                }
+            } catch (e: IOException) {
+                SelectedSubjectUiState.Error
+            } catch (e: HttpException) {
+                SelectedSubjectUiState.Error
+            }
+        }
+    }
 
     fun getTrendingWorks() {
         viewModelScope.launch {
             workListUiState = WorkListUiState.Loading
             workListUiState = try {
                 val worksWeek = worksRepository.getTrendingWorks().works
-                /*worksWeek.forEach { work ->
-                    localWorksRepository.insertWorks(work)
-                }*/
                 val worksDay = worksRepository.getTrendingWorks("daily").works
-                /*worksDay.forEach { work ->
-                    localWorksRepository.insertWorks(work)
-                }*/
                 val worksNow = worksRepository.getTrendingWorks("now").works
-                /*worksNow.forEach { work ->
-                    localWorksRepository.insertWorks(work)
-                }*/
                 WorkListUiState.Success(listOf(
                     Pair(worksWeek, "Trending Work (this week):"),
                     Pair(worksDay, "Trending Work (today):"),

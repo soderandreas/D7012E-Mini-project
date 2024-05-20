@@ -35,3 +35,13 @@ data class SearchWorksQueryResponse(
     @SerialName(value = "docs")
     var docs: List<Works>? = null
 )
+
+@Serializable
+data class SubjectWorksQueryResponse(
+    @SerialName(value = "key")
+    var key: String = "",
+    @SerialName(value = "work_count")
+    var workCount: Int = 0,
+    @SerialName(value = "works")
+    var works: List<SubjectWorks>? = null,
+)

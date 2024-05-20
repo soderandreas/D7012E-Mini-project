@@ -3,11 +3,13 @@ package com.example.bookminiproject.network
 import com.example.bookminiproject.model.Author
 import com.example.bookminiproject.model.AuthorWorksQueryResponse
 import com.example.bookminiproject.model.SearchWorksQueryResponse
+import com.example.bookminiproject.model.SubjectWorksQueryResponse
 import com.example.bookminiproject.model.TrendingWorksQueryResponse
 import com.example.bookminiproject.model.Work
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import javax.security.auth.Subject
 
 interface BookDBApiService {
     @GET("search.json")
@@ -37,6 +39,14 @@ interface BookDBApiService {
         @Query("limit")
         limit: String = "10",
     ): TrendingWorksQueryResponse
+
+    @GET("subjects/{Subject}.json")
+    suspend fun getSubjectWorks(
+        @Path("Subject")
+        subject: String,
+        @Query("limit")
+        limit: String = "10",
+    ): SubjectWorksQueryResponse
 
     @GET("{WorkId}.json")
     suspend fun getWork(

@@ -40,6 +40,7 @@ import com.example.bookminiproject.viewmodel.SelectedWorkUiState
 fun BookDetailScreen(
     booksDBViewModel: BooksDBViewModel,
     onAuthorClick: (AuthorKey) -> Unit,
+    onSubjectClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when(val selectedWorkUiState = booksDBViewModel.selectedWorkUiState) {
@@ -88,6 +89,7 @@ fun BookDetailScreen(
                     )
                     BookSubjects(
                         selectedWorkUiState.work.subjects,
+                        onSubjectClick,
                         Modifier
                             .padding(horizontal = 2.dp)
                     )
@@ -158,12 +160,14 @@ fun BookAuthorText(author: String, authorId: AuthorKey, onAuthorClick: (AuthorKe
 @Composable
 fun BookSubjects(
     subjects: List<String>,
+    onSubjectClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyRow {
         items(subjects) {subject ->
             Button(
                 onClick = {
+                    onSubjectClick(subject)
                     Log.d("BookSubject", "Clicked on subject $subject")
                 },
                 shape = RoundedCornerShape(10),

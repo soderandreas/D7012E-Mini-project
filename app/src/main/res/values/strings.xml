@@ -8,4 +8,5 @@
     <string name="book_search">Book Search</string>
     <string name="bottom_home">Bottom Home</string>
     <string name="bottom_search">Bottom Search</string>
+    <string name="book_subject">Book Subject</string>
 </resources>

@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -28,10 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.bookminiproject.R
-import com.example.bookminiproject.model.AuthorKey
-import com.example.bookminiproject.model.AuthorRole
-import com.example.bookminiproject.model.Book
-import com.example.bookminiproject.model.Work
 import com.example.bookminiproject.model.Works
 import com.example.bookminiproject.ui.theme.BookMiniProjectTheme
 import com.example.bookminiproject.utils.Constants

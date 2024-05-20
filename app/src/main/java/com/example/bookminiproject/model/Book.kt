@@ -97,6 +97,25 @@ data class Works(
     var firstPublishYear: Int? = null,
 )
 
+// For many works, used in subject query
+@Serializable
+data class SubjectWorks (
+    @SerialName(value = "key")
+    var key: String = "",
+
+    @SerialName(value = "title")
+    var title: String = "",
+
+    @SerialName(value = "cover_id")
+    var coverImage: Int? = null,
+
+    @SerialName(value = "first_publish_year")
+    var firstPublishYear: Int? = null,
+
+    @SerialName(value = "authors")
+    var authors: List<SubjectAuthors> = listOf()
+)
+
 // Local version of works
 @Serializable
 @Entity(tableName = "work")
@@ -116,6 +135,14 @@ data class WorkLocal(
 
     @SerialName(value = "first_publish_date")
     var firstPublishDate: String? = "",
+)
+
+@Serializable
+data class SubjectAuthors(
+    @SerialName("key")
+    val key: String,
+    @SerialName("name")
+    val name: String
 )
 
 @Serializable
