@@ -112,10 +112,12 @@ fun BookListItemCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
-                Text(
-                    text = work.firstPublishYear.toString(),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                if (work.firstPublishYear != null) {
+                    Text(
+                        text = work.firstPublishYear.toString(),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 Spacer(modifier = Modifier.size(8.dp))
                 if (work.authorName.isNotEmpty()){
                     Text(
